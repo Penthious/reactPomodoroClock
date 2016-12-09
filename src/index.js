@@ -1,12 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import 'bulma';
 
-import Calculator from './components/Calculator';
+import Clock from './components/Clock';
+
 
 export default class App extends React.Component {
     render() {
         return (
-            <Calculator />
+            <div className="container">
+                <Clock />
+            </div>
         )
     }
 }
