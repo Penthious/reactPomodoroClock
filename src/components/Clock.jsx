@@ -100,7 +100,7 @@ class Clock extends Component {
                     }else{
                         this.setState({minutes, seconds});
                     }
-                }, 100),
+                }, 1000),
             });
         } else if(this.state.on){
             this.setState({
@@ -124,7 +124,7 @@ class Clock extends Component {
                     }else{
                         this.setState({minutes, seconds});
                     }
-                }, 100),
+                }, 1000),
             });
         }
     };
