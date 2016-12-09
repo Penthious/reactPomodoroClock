@@ -13,15 +13,16 @@ class Clock extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            on: true,
             active: 'Work',
             name: 'Work',
             work: 'Work',
-            workTime: '25',
+            workTime: '1',
             break: 'Break',
-            breakTime: '5',
+            breakTime: '2',
             minutes: '25',
             seconds: '00',
-            start: 'false',
+            start: 'Start',
             breakInterval: '',
             workInterval: '',
         }
@@ -75,25 +76,56 @@ class Clock extends Component {
      * Starts the count down timer.
      */
     handleStart = () => {
-        if (this.state.active === 'Work') {
+        this.setState({start: 'Pause'});
+        if (this.state.active === 'Work' && this.state.on) {
             this.setState({
                 minutes: this.state.workTime,
                 workInterval: setInterval(() => {
                     let minutes = +this.state.minutes;
                     let seconds = +this.state.seconds;
                     seconds--;
-                    if(seconds <= 0){
+                    if (minutes === 0 && seconds === 0) {
+                        this.setState({
+                            workInterval: clearInterval(this.state.workInterval),
+                            active: 'Break',
+                            minutes: this.state.breakTime,
+                        });
+                        this.handleStart();
+                    }
+                    else if (seconds <= 0) {
+                        console.log('test');
                         minutes--;
-                        seconds = 60
+                        seconds = 60;
+                        this.setState({minutes, seconds});
+                    }else{
+                        this.setState({minutes, seconds});
                     }
-                    if(minutes === 0 && seconds === 0){
-                        this.setState({workInterval: clearInterval(this.state.workInterval)});
-                    }
-                    this.setState({minutes, seconds});
-                }, 1000),
+                }, 100),
             });
-        } else {
-            this.setState({minutes: this.state.breakTime});
+        } else if(this.state.on){
+            this.setState({
+                minutes: this.state.workTime,
+                breakInterval: setInterval(() => {
+                    let minutes = +this.state.minutes;
+                    let seconds = +this.state.seconds;
+                    seconds--;
+                    if (minutes === 0 && seconds === 0) {
+                        this.setState({
+                            breakInterval: clearInterval(this.state.breakInterval),
+                            active: 'Work',
+                            minutes: this.state.workTime,
+                        });
+                        this.handleStart();
+                    }
+                    else if (seconds <= 0) {
+                        minutes--;
+                        seconds = 60;
+                        this.setState({minutes, seconds});
+                    }else{
+                        this.setState({minutes, seconds});
+                    }
+                }, 100),
+            });
         }
     };
 
@@ -102,9 +134,34 @@ class Clock extends Component {
      */
     handleReset = () => {
         if (this.state.active === 'Work') {
-            this.setState({minutes: this.state.workTime});
+            this.setState({
+                workInterval: clearInterval(this.state.workInterval),
+                minutes: this.state.workTime,
+                seconds: '00'
+            });
         } else {
-            this.setState({minutes: this.state.breakTime});
+            this.setState({
+                breakInterval: clearInterval(this.state.breakInterval),
+                minutes: this.state.breakTime,
+                seconds: '00',
+            });
+        }
+    };
+
+    /**
+     * Pauses the current session
+     */
+    handlePause = () => {
+        if(this.state.active === 'Work'){
+            this.setState({
+                workInterval: clearInterval(this.state.workInterval),
+                start: 'Start',
+            })
+        }else{
+            this.setState({
+                breakInterval: clearInterval(this.state.breakInterval),
+                start: 'Start',
+            })
         }
     };
 
@@ -139,7 +196,7 @@ class Clock extends Component {
                 </div>
                 <div className="columns">
                     <div className="column">
-                        <Control name="Start" handleStart={this.handleStart} />
+                        <Control name={this.state.start} handlePause={this.handlePause} handleStart={this.handleStart} />
                     </div>
                     <div className="column">
                         <Control name="Reset" handleReset={this.handleReset} />
